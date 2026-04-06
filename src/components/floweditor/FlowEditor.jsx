@@ -319,26 +319,28 @@ function FlowEditorInner({ initialFlow, onSave, onCancel, readOnlyProp, onExtern
   }, [readOnly]);
 
   return (
-    <div className="flex flex-col h-full rounded-xl overflow-hidden border" style={{ borderColor: '#E2E8F0', minHeight: 600 }}>
-      <FlowToolbar
-        onUndo={undo}
-        onRedo={redo}
-        canUndo={historyIndex > 0}
-        canRedo={historyIndex < history.length - 1}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        onFitView={() => fitView({ padding: 0.2 })}
-        onExportJSON={handleExportJSON}
-        onImportJSON={handleImportJSON}
-        onExportPNG={() => {}}
-        onClear={handleClear}
-        onSave={handleSave}
-        onCancel={onCancel}
-        snapToGrid={snapToGrid}
-        onToggleSnap={() => setSnapToGrid(s => !s)}
-        readOnly={readOnly}
-        onToggleReadOnly={() => setReadOnly(r => !r)}
-      />
+    <div className="flex flex-col h-full rounded-xl overflow-hidden border" style={{ borderColor: '#E2E8F0', minHeight: readOnly ? 400 : 600 }}>
+      {!readOnly && (
+        <FlowToolbar
+          onUndo={undo}
+          onRedo={redo}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+          onZoomIn={zoomIn}
+          onZoomOut={zoomOut}
+          onFitView={() => fitView({ padding: 0.2 })}
+          onExportJSON={handleExportJSON}
+          onImportJSON={handleImportJSON}
+          onExportPNG={() => {}}
+          onClear={handleClear}
+          onSave={handleSave}
+          onCancel={onCancel}
+          snapToGrid={snapToGrid}
+          onToggleSnap={() => setSnapToGrid(s => !s)}
+          readOnly={readOnly}
+          onToggleReadOnly={() => setReadOnly(r => !r)}
+        />
+      )}
 
       <div className="flex flex-1 overflow-hidden">
         {!readOnly && <ShapePanel onAddNode={addNode} />}
