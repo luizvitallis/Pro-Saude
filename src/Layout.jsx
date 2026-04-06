@@ -12,7 +12,8 @@ import {
   Heart,
   ChevronDown,
   PlusCircle,
-  RefreshCw } from
+  RefreshCw,
+  Lock } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -225,6 +226,18 @@ export default function Layout({ children, currentPageName }) {
                     </div>
                   </Link>);
               })}
+              {!isAdmin && (
+                <Link
+                  to={createPageUrl("ManageProtocols")}
+                  className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-all duration-200 mt-4 border-t border-slate-100 pt-4"
+                >
+                  <Lock className="w-4 h-4" />
+                  <div>
+                    <div>Administrar</div>
+                    <div className="text-xs text-slate-400">Requer senha</div>
+                  </div>
+                </Link>
+              )}
             </nav>
           </div>
 
