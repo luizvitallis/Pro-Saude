@@ -28,6 +28,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Protocol } from "@/entities/Protocol";
+import { useAdmin } from "@/lib/AdminContext";
 
 const pageTitles = {
   Dashboard: "Dashboard",
@@ -53,7 +54,8 @@ export default function Layout({ children, currentPageName }) {
   const [notifications, setNotifications] = React.useState([]);
   const [notifOpen, setNotifOpen] = React.useState(false);
 
-  const currentUser = defaultUser;
+  const { isAdmin, logout: adminLogout } = useAdmin();
+  const currentUser = { ...defaultUser, role: isAdmin ? 'admin' : 'user' };
 
   React.useEffect(() => {
     loadNotifications();
@@ -98,26 +100,40 @@ export default function Layout({ children, currentPageName }) {
     document.title = translatedTitle === "Dashboard" ? "Pro-Saude" : `${translatedTitle} - Pro-Saude`;
   }, [currentPageName]);
 
-  const navigationItems = [
-    {
-      title: "Dashboard",
-      url: createPageUrl("Dashboard"),
-      icon: LayoutDashboard,
-      description: "Visao geral"
-    },
-    {
-      title: "Gerenciar Protocolos",
-      url: createPageUrl("ManageProtocols"),
-      icon: FileText,
-      description: "Criar e editar protocolos"
-    },
-    {
-      title: "Configuracoes",
-      url: createPageUrl("Settings"),
-      icon: Settings,
-      description: "Ajustes do sistema"
+  const navigationItems = React.useMemo(() => {
+    const items = [
+      {
+        title: "Dashboard",
+        url: createPageUrl("Dashboard"),
+        icon: LayoutDashboard,
+        description: "Visao geral"
+      }
+    ];
+
+    if (isAdmin) {
+      items.push({
+        title: "Gerenciar Protocolos",
+        url: createPageUrl("ManageProtocols"),
+        icon: FileText,
+        description: "Criar e editar protocolos"
+      });
+      items.push({
+        title: "Configuracoes",
+        url: createPageUrl("Settings"),
+        icon: Settings,
+        description: "Ajustes do sistema"
+      });
+    } else {
+      items.push({
+        title: "Protocolos",
+        url: createPageUrl("Protocols"),
+        icon: FileText,
+        description: "Consultar protocolos"
+      });
     }
-  ];
+
+    return items;
+  }, [isAdmin]);
 
   const translatedTitle = pageTitles[currentPageName] || currentPageName;
 
@@ -214,14 +230,19 @@ export default function Layout({ children, currentPageName }) {
 
           {/* Info Badge */}
           <div className="p-4">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
-              <div className="flex items-center gap-2 mb-2">
-                <Badge className="bg-blue-100 text-blue-700">
-                  Acesso Livre
+            <div className={`bg-gradient-to-r ${isAdmin ? 'from-purple-50 to-indigo-50 border-purple-100' : 'from-blue-50 to-indigo-50 border-blue-100'} rounded-xl p-4 border`}>
+              <div className="flex items-center justify-between mb-2">
+                <Badge className={isAdmin ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}>
+                  {isAdmin ? 'Administrador' : 'Acesso Livre'}
                 </Badge>
+                {isAdmin && (
+                  <button onClick={adminLogout} className="text-xs text-slate-500 hover:text-red-600 transition-colors">
+                    Sair
+                  </button>
+                )}
               </div>
               <p className="text-xs text-slate-600">
-                Sistema de acesso publico
+                {isAdmin ? 'Acesso completo ao sistema' : 'Consulta de protocolos'}
               </p>
             </div>
           </div>

@@ -7,6 +7,7 @@ import ProtocolViewer from "../components/protocols/ProtocolViewer";
 import ProtocolEditor from "../components/protocols/ProtocolEditor";
 import FlowEditor from "../components/floweditor/FlowEditor";
 import { createPageUrl } from "@/utils";
+import { useAdmin } from "@/lib/AdminContext";
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -17,10 +18,11 @@ export default function ProtocolDetail() {
   const query = useQuery();
   const protocolId = query.get('id');
   const isEditMode = query.get('edit') === 'true';
+  const { isAdmin } = useAdmin();
 
   const [protocol, setProtocol] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(isEditMode);
+  const [isEditing, setIsEditing] = useState(isEditMode && isAdmin);
   const [isEditingFlowchart, setIsEditingFlowchart] = useState(false);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export default function ProtocolDetail() {
     try {
       await Protocol.update(protocolId, updatedData);
       setIsEditing(false);
-      loadProtocol(); // Recarregar para ver os dados salvos
+      loadProtocol();
     } catch (error) {
       console.error("Failed to save protocol:", error);
     }
@@ -59,20 +61,20 @@ export default function ProtocolDetail() {
   }
 
   if (!protocol) {
-    return <div className="p-6 text-center text-red-500">Protocolo não encontrado.</div>;
+    return <div className="p-6 text-center text-red-500">Protocolo nao encontrado.</div>;
   }
 
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <Button variant="ghost" onClick={() => navigate(createPageUrl("Protocols"))}>
+        <Button variant="ghost" onClick={() => navigate(isAdmin ? createPageUrl("ManageProtocols") : createPageUrl("Protocols"))}>
           <ArrowLeft className="w-4 h-4 mr-2" />
           Voltar para Protocolos
         </Button>
         <div className="flex items-center gap-2">
           <Button variant="outline"><Printer className="w-4 h-4 mr-2" /> Imprimir</Button>
           <Button variant="outline"><Share2 className="w-4 h-4 mr-2" /> Compartilhar</Button>
-          {!isEditing && !isEditingFlowchart && (
+          {isAdmin && !isEditing && !isEditingFlowchart && (
             <>
               <Button onClick={() => setIsEditingFlowchart(true)} variant="outline" className="gap-2">
                 <GitBranch className="w-4 h-4" /> Fluxograma
@@ -85,9 +87,9 @@ export default function ProtocolDetail() {
         </div>
       </div>
 
-      {isEditing ? (
+      {isEditing && isAdmin ? (
         <ProtocolEditor protocol={protocol} onSave={handleSave} onCancel={() => setIsEditing(false)} />
-      ) : isEditingFlowchart ? (
+      ) : isEditingFlowchart && isAdmin ? (
         <div style={{ height: 'calc(100vh - 140px)' }}>
           <FlowEditor
             initialFlow={protocol.flowchart}
