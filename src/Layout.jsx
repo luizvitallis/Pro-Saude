@@ -11,13 +11,12 @@ import {
   X,
   Heart,
   ChevronDown,
-  LogOut,
   PlusCircle,
   RefreshCw } from
 "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,46 +27,35 @@ import {
 "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { User } from "@/entities/User";
 import { Protocol } from "@/entities/Protocol";
-
-const departmentColors = {
-  uti: "bg-red-100 text-red-700",
-  emergencia: "bg-orange-100 text-orange-700",
-  ambulatorio: "bg-blue-100 text-blue-700",
-  cirurgia: "bg-purple-100 text-purple-700",
-  pediatria: "bg-pink-100 text-pink-700",
-  administracao: "bg-gray-100 text-gray-700"
-};
-
-const departmentNames = {
-  uti: "UTI",
-  emergencia: "Emergência",
-  ambulatorio: "Ambulatório",
-  cirurgia: "Cirurgia",
-  pediatria: "Pediatria",
-  administracao: "Administração"
-};
 
 const pageTitles = {
   Dashboard: "Dashboard",
   Protocols: "Protocolos",
   ManageProtocols: "Gerenciar Protocolos",
   ProtocolDetail: "Detalhes do Protocolo",
-  Settings: "Configurações"
+  Settings: "Configuracoes"
+};
+
+const defaultUser = {
+  full_name: "Administrador",
+  email: "admin@pro-saude.com",
+  department: "administracao",
+  position: "Administrador do Sistema",
+  role: "admin",
+  avatar_url: null
 };
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [currentUser, setCurrentUser] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
   const [notifications, setNotifications] = React.useState([]);
   const [notifOpen, setNotifOpen] = React.useState(false);
 
+  const currentUser = defaultUser;
+
   React.useEffect(() => {
-    loadCurrentUser();
     loadNotifications();
   }, []);
 
@@ -105,103 +93,33 @@ export default function Layout({ children, currentPageName }) {
     });
   };
 
-  // Definir título da página
   React.useEffect(() => {
     const translatedTitle = pageTitles[currentPageName] || currentPageName;
-    document.title = translatedTitle === "Dashboard" ? "Pro-Saúde" : `${translatedTitle} - Pro-Saúde`;
+    document.title = translatedTitle === "Dashboard" ? "Pro-Saude" : `${translatedTitle} - Pro-Saude`;
   }, [currentPageName]);
 
-  const loadCurrentUser = async () => {
-    try {
-      const user = await User.me();
-      setCurrentUser(user);
-    } catch (error) {
-      console.error("Failed to load current user:", error);
-      // Fallback para usuário mock em caso de erro
-      setCurrentUser({
-        full_name: "Dr. Ana Silva",
-        email: "ana.silva@hospital.com",
-        department: "uti",
-        position: "Médica Intensivista",
-        role: "user",
-        avatar_url: null
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const navigationItems = React.useMemo(() => {
-    if (!currentUser) return [];
-
-    const baseItems = [];
-
-    // Dashboard sempre visível
-    baseItems.push({
+  const navigationItems = [
+    {
       title: "Dashboard",
       url: createPageUrl("Dashboard"),
       icon: LayoutDashboard,
-      description: "Visão geral"
-    });
-
-    // Protocolos baseado no perfil
-    if (currentUser.role === 'admin') {
-      baseItems.push({
-        title: "Gerenciar Protocolos",
-        url: createPageUrl("ManageProtocols"),
-        icon: FileText,
-        description: "Criar e editar protocolos"
-      });
-    } else {
-      baseItems.push({
-        title: "Protocolos",
-        url: createPageUrl("Protocols"),
-        icon: FileText,
-        description: "Consultar protocolos"
-      });
+      description: "Visao geral"
+    },
+    {
+      title: "Gerenciar Protocolos",
+      url: createPageUrl("ManageProtocols"),
+      icon: FileText,
+      description: "Criar e editar protocolos"
+    },
+    {
+      title: "Configuracoes",
+      url: createPageUrl("Settings"),
+      icon: Settings,
+      description: "Ajustes do sistema"
     }
-
-    // Configurações apenas para administradores
-    if (currentUser.role === 'admin') {
-      baseItems.push({
-        title: "Configurações",
-        url: createPageUrl("Settings"),
-        icon: Settings,
-        description: "Ajustes da conta"
-      });
-    }
-
-    return baseItems;
-  }, [currentUser]);
-
-  const handleLogout = async () => {
-    try {
-      await User.logout();
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  };
+  ];
 
   const translatedTitle = pageTitles[currentPageName] || currentPageName;
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-      </div>);
-
-  }
-
-  if (!currentUser) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-slate-600">Erro ao carregar dados do usuário</p>
-          <Button onClick={loadCurrentUser} className="mt-4">Tentar novamente</Button>
-        </div>
-      </div>);
-
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50">
@@ -214,29 +132,29 @@ export default function Layout({ children, currentPageName }) {
           --purple-gradient: linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%);
           --surface-gradient: linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 100%);
         }
-        
+
         .gradient-primary {
           background: var(--primary-gradient);
         }
-        
+
         .gradient-surface {
           background: var(--surface-gradient);
         }
-        
+
         .sidebar-transition {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         .glass-effect {
           backdrop-filter: blur(10px);
           background: rgba(255, 255, 255, 0.9);
           border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .hover-lift {
           transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        
+
         .hover-lift:hover {
           transform: translateY(-1px);
           box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
@@ -255,8 +173,8 @@ export default function Layout({ children, currentPageName }) {
                 <Heart className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-lg font-semibold text-white">Pro-Saúde</h1>
-                <p className="text-xs text-blue-100">Protocolos de Saúde</p>
+                <h1 className="text-lg font-semibold text-white">Pro-Saude</h1>
+                <p className="text-xs text-blue-100">Protocolos de Saude</p>
               </div>
             </div>
             <Button
@@ -264,7 +182,6 @@ export default function Layout({ children, currentPageName }) {
               size="icon"
               className="lg:hidden text-white hover:bg-white hover:bg-opacity-20"
               onClick={() => setSidebarOpen(false)}>
-
               <X className="w-5 h-5" />
             </Button>
           </div>
@@ -283,7 +200,6 @@ export default function Layout({ children, currentPageName }) {
                     'gradient-primary text-white shadow-lg' :
                     'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}`
                     }>
-
                     <item.icon className="w-5 h-5" />
                     <div>
                       <div>{item.title}</div>
@@ -292,44 +208,21 @@ export default function Layout({ children, currentPageName }) {
                       </div>
                     </div>
                   </Link>);
-
               })}
             </nav>
           </div>
 
-          {/* Role Badge */}
+          {/* Info Badge */}
           <div className="p-4">
-            <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-xl p-4 border border-purple-100">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={currentUser.role === 'admin' ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}>
-                  {currentUser.role === 'admin' ? 'Administrador' : 'Usuário'}
+                <Badge className="bg-blue-100 text-blue-700">
+                  Acesso Livre
                 </Badge>
               </div>
               <p className="text-xs text-slate-600">
-                {currentUser.role === 'admin' ? 'Acesso completo ao sistema' : 'Acesso de visualização'}
+                Sistema de acesso publico
               </p>
-            </div>
-          </div>
-
-          {/* User Profile */}
-          <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-200 bg-white">
-            <div className="flex items-center gap-3">
-              <Avatar className="w-10 h-10">
-                <AvatarImage src={currentUser.avatar_url} />
-                <AvatarFallback className="gradient-primary text-white font-medium">
-                  {currentUser.full_name.split(' ').map((n) => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-900 truncate">
-                  {currentUser.full_name}
-                </p>
-                <div className="flex items-center gap-2">
-                  <Badge className={`text-xs ${departmentColors[currentUser.department]}`}>
-                    {departmentNames[currentUser.department]}
-                  </Badge>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -339,7 +232,6 @@ export default function Layout({ children, currentPageName }) {
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)} />
-
         }
 
         {/* Main Content */}
@@ -353,14 +245,13 @@ export default function Layout({ children, currentPageName }) {
                   size="icon"
                   className="lg:hidden hover:bg-slate-100"
                   onClick={() => setSidebarOpen(true)}>
-
                   <Menu className="w-5 h-5" />
                 </Button>
-                
+
                 <div>
                   <h2 className="text-xl font-semibold text-slate-900">{translatedTitle}</h2>
                   <p className="text-sm text-slate-500">
-                    {departmentNames[currentUser.department]} - {currentUser.position}
+                    Pro-Saude - Protocolos de Saude
                   </p>
                 </div>
               </div>
@@ -374,7 +265,6 @@ export default function Layout({ children, currentPageName }) {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 w-64 border-slate-200 focus:border-blue-300 focus:ring-blue-100" />
-
                 </div>
 
                 {/* Notifications */}
@@ -393,7 +283,7 @@ export default function Layout({ children, currentPageName }) {
                       <div className="fixed inset-0 z-40" onClick={() => setNotifOpen(false)} />
                       <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden">
                         <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                          <h3 className="font-semibold text-slate-900">Notificações</h3>
+                          <h3 className="font-semibold text-slate-900">Notificacoes</h3>
                           <Button variant="ghost" size="icon" className="w-6 h-6" onClick={() => setNotifOpen(false)}>
                             <X className="w-4 h-4" />
                           </Button>
@@ -430,48 +320,6 @@ export default function Layout({ children, currentPageName }) {
                     </>
                   )}
                 </div>
-
-                {/* User Menu */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2 hover:bg-slate-100 px-3">
-                      <Avatar className="w-8 h-8">
-                        <AvatarImage src={currentUser.avatar_url} />
-                        <AvatarFallback className="gradient-primary text-white text-sm">
-                          {currentUser.full_name.split(' ').map((n) => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <ChevronDown className="w-4 h-4 text-slate-500" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 shadow-lg">
-                    <DropdownMenuLabel>
-                      <div>
-                        <p className="font-medium">{currentUser.full_name}</p>
-                        <p className="text-xs text-slate-500">{currentUser.email}</p>
-                        <Badge size="sm" className={`mt-1 ${currentUser.role === 'admin' ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"}`}>
-                          {currentUser.role === 'admin' ? 'Administrador' : 'Usuário'}
-                        </Badge>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {currentUser.role === 'admin' &&
-                    <>
-                        <Link to={createPageUrl("Settings")}>
-                          <DropdownMenuItem className="cursor-pointer">
-                            <Settings className="w-4 h-4 mr-2" />
-                            Configurações
-                          </DropdownMenuItem>
-                        </Link>
-                        <DropdownMenuSeparator />
-                      </>
-                    }
-                    <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700">
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Sair
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
               </div>
             </div>
           </header>
@@ -483,5 +331,4 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </div>
     </div>);
-
 }

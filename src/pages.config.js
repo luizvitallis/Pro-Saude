@@ -52,7 +52,6 @@ import Protocols from './pages/Protocols';
 import Settings from './pages/Settings';
 import ProtocolDetail from './pages/ProtocolDetail';
 import ManageProtocols from './pages/ManageProtocols';
-import Login from './pages/Login';
 import __Layout from './Layout.jsx';
 
 
@@ -62,7 +61,6 @@ export const PAGES = {
     "Settings": Settings,
     "ProtocolDetail": ProtocolDetail,
     "ManageProtocols": ManageProtocols,
-    "Login": Login,
 }
 
 export const pagesConfig = {

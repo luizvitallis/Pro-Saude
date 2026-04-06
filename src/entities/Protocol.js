@@ -36,11 +36,7 @@ export const Protocol = {
   },
 
   async create(record) {
-    const { data: { user } } = await supabase.auth.getUser();
     const payload = { ...record };
-    if (user) {
-      payload.created_by = user.id;
-    }
 
     const { data, error } = await supabase
       .from('protocols')

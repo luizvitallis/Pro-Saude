@@ -7,19 +7,18 @@ function parseSort(sortField) {
   return { column, ascending: !descending };
 }
 
+const defaultUser = {
+  full_name: "Administrador",
+  email: "admin@pro-saude.com",
+  department: "administracao",
+  position: "Administrador do Sistema",
+  role: "admin",
+  avatar_url: null
+};
+
 export const User = {
   async me() {
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) throw authError || new Error('Not authenticated');
-
-    const { data: profile, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (error) throw error;
-    return profile;
+    return defaultUser;
   },
 
   async list(sortField, limit) {
@@ -34,12 +33,11 @@ export const User = {
     }
 
     const { data, error } = await query;
-    if (error) throw error;
-    return data;
+    if (error) return [defaultUser];
+    return data.length > 0 ? data : [defaultUser];
   },
 
   async logout() {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    // No-op: sistema de acesso livre
   },
 };
