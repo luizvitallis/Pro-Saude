@@ -1,0 +1,160 @@
+{
+  "name": "Protocol",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo do protocolo"
+    },
+    "description": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o detalhada do protocolo"
+    },
+    "department": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Setores aos quais o protocolo se aplica"
+    },
+    "category": {
+      "type": "string",
+      "description": "Categoria do protocolo"
+    },
+    "priority": {
+      "type": "string",
+      "default": "media",
+      "description": "Prioridade do protocolo"
+    },
+    "status": {
+      "type": "string",
+      "default": "rascunho",
+      "description": "Status atual do protocolo"
+    },
+    "content": {
+      "type": "object",
+      "description": "Conte\u00fado estruturado do protocolo"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "order": {
+            "type": "number"
+          },
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "estimated_time": {
+            "type": "string"
+          },
+          "department": {
+            "type": "string",
+            "description": "Setor respons\u00e1vel por este passo"
+          },
+          "step_pdf_url": {
+            "type": "string",
+            "description": "URL do PDF espec\u00edfico para este passo"
+          }
+        }
+      },
+      "description": "Passos do protocolo"
+    },
+    "flowchart": {
+      "type": "object",
+      "description": "Dados do fluxograma interativo",
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "x": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number"
+              },
+              "color": {
+                "type": "string"
+              },
+              "textColor": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "connections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              },
+              "color": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "version": {
+      "type": "string",
+      "default": "1.0",
+      "description": "Vers\u00e3o do protocolo"
+    },
+    "approved_by": {
+      "type": "string",
+      "description": "ID do usu\u00e1rio que aprovou"
+    },
+    "approved_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Data de aprova\u00e7\u00e3o"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags para facilitar busca"
+    },
+    "pdf_url": {
+      "type": "string",
+      "description": "URL do arquivo PDF do protocolo"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "URLs de arquivos anexados"
+    }
+  },
+  "required": [
+    "title",
+    "department",
+    "category"
+  ]
+}
