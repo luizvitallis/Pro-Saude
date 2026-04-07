@@ -20,7 +20,7 @@ export default function TerminalNode({ data, selected }) {
       className="relative"
       style={{
         minWidth: 140, minHeight: 52,
-        background: `linear-gradient(160deg, ${bgColor}, ${bgColor}cc)`,
+        background: bgColor,
         border: selected ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.18)',
         borderRadius: 26,
         boxShadow: selected

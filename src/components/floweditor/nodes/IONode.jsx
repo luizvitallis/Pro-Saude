@@ -23,15 +23,9 @@ export default function IONode({ data, selected }) {
       onDoubleClick={handleDoubleClick}
     >
       <svg width={w} height={h} className="absolute inset-0" style={{ filter: selected ? 'drop-shadow(0 0 6px rgba(96,165,250,0.4))' : 'drop-shadow(0 2px 6px rgba(0,0,0,0.08))' }}>
-        <defs>
-          <linearGradient id={`iog-${data.label}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={bgColor} />
-            <stop offset="100%" stopColor={bgColor} stopOpacity="0.8" />
-          </linearGradient>
-        </defs>
         <polygon
           points={`${skew},0 ${w},0 ${w - skew},${h} 0,${h}`}
-          fill={`url(#iog-${data.label})`}
+          fill={bgColor}
           stroke={selected ? '#60a5fa' : 'rgba(255,255,255,0.18)'}
           strokeWidth={selected ? 2 : 1}
         />

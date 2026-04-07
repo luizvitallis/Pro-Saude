@@ -24,15 +24,9 @@ export default function DecisionNode({ data, selected }) {
       onDoubleClick={handleDoubleClick}
     >
       <svg width="100%" height="100%" viewBox="0 0 169 169" className="absolute inset-0" style={{ filter: selected ? 'drop-shadow(0 0 6px rgba(96,165,250,0.4))' : 'drop-shadow(0 3px 8px rgba(0,0,0,0.1))' }}>
-        <defs>
-          <linearGradient id={`dg-${data.label}`} x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor={bgColor} />
-            <stop offset="100%" stopColor={bgColor} stopOpacity="0.8" />
-          </linearGradient>
-        </defs>
         <polygon
           points="84.5,8 161,84.5 84.5,161 8,84.5"
-          fill={`url(#dg-${data.label})`}
+          fill={bgColor}
           stroke={selected ? '#60a5fa' : 'rgba(255,255,255,0.18)'}
           strokeWidth={selected ? 2 : 1}
         />

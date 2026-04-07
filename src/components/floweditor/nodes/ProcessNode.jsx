@@ -25,7 +25,7 @@ export default function ProcessNode({ data, selected }) {
       className="group relative"
       style={{
         minWidth: 180, minHeight: 52,
-        background: `linear-gradient(160deg, ${bgColor}, ${bgColor}cc)`,
+        background: bgColor,
         border: selected ? '2px solid #60a5fa' : '1px solid rgba(255,255,255,0.18)',
         borderRadius: 12,
         boxShadow: selected
