@@ -6,7 +6,6 @@ import { CheckSquare, Clock, FileText, Download, Maximize, X, Loader2, ExternalL
 import { Input } from "@/components/ui/input";
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
-import FlowchartViewer from './FlowchartViewer';
 
 // These color maps will now act as a 'best effort'. If an option is not found, a default gray will be used.
 const departmentColors = {
@@ -39,7 +38,7 @@ const departmentColorsForSteps = {
   'Vigilância em Saúde': "bg-yellow-100 text-yellow-700 border-yellow-200",
 };
 
-export default function ProtocolViewer({ protocol }) {
+export default function ProtocolViewer({ protocol, onOpenFlowchart }) {
   const [showPdfViewer, setShowPdfViewer] = React.useState(false);
   const [pdfObjectUrl, setPdfObjectUrl] = React.useState(null);
   const [isLoadingPdf, setIsLoadingPdf] = React.useState(false);
@@ -48,15 +47,7 @@ export default function ProtocolViewer({ protocol }) {
   const [highlightedStep, setHighlightedStep] = React.useState(null);
   const stepRefs = React.useRef({});
 
-  const handleFlowchartNodeClick = React.useCallback((stepIndex) => {
-    setHighlightedStep(stepIndex);
-    const el = stepRefs.current[stepIndex];
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-    // Clear highlight after 3 seconds
-    setTimeout(() => setHighlightedStep(null), 3000);
-  }, []);
+  const hasFlowchart = protocol?.flowchart?.nodes?.length > 0;
 
   // Effect to clean up the object URL when the component unmounts or pdfObjectUrl changes
   React.useEffect(() => {
@@ -200,18 +191,29 @@ export default function ProtocolViewer({ protocol }) {
           </div>
         </CardHeader>
         <CardContent>
-          {/* PDF Section */}
-          {protocol.pdf_url && (
+          {/* Documents Section */}
+          {(protocol.pdf_url || hasFlowchart) && (
             <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3">
                   <FileText className="w-8 h-8 text-blue-600" />
                   <div>
-                    <h4 className="font-medium text-blue-900">Documento PDF</h4>
-                    <p className="text-sm text-blue-700">Protocolo completo em formato PDF</p>
+                    <h4 className="font-medium text-blue-900">Documentos do Protocolo</h4>
+                    <p className="text-sm text-blue-700">PDF e fluxograma interativo</p>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {hasFlowchart && (
+                    <Button
+                      variant="outline"
+                      onClick={onOpenFlowchart}
+                      className="gap-2 border-teal-300 text-teal-700 hover:bg-teal-50"
+                    >
+                      <GitBranch className="w-4 h-4" />
+                      Ver Fluxograma
+                    </Button>
+                  )}
+                  {protocol.pdf_url && (
                   <Button
                     variant="outline"
                     onClick={handleToggleViewer}
@@ -232,6 +234,9 @@ export default function ProtocolViewer({ protocol }) {
                       </>
                     )}
                   </Button>
+                  )}
+                  {protocol.pdf_url && (
+                  <>
                   <Button
                     variant="outline"
                     onClick={() => handleViewPdf(true)}
@@ -245,17 +250,19 @@ export default function ProtocolViewer({ protocol }) {
                     variant="outline"
                     onClick={() => {
                       const link = document.createElement('a');
-                      link.href = protocol.pdf_url; // Use original URL for direct download
+                      link.href = protocol.pdf_url;
                       link.download = `${protocol.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`;
-                      document.body.appendChild(link); // Append to body to ensure click works reliably
+                      document.body.appendChild(link);
                       link.click();
-                      document.body.removeChild(link); // Clean up the created element
+                      document.body.removeChild(link);
                     }}
                     className="gap-2"
                   >
                     <Download className="w-4 h-4" />
                     Download
                   </Button>
+                  </>
+                  )}
                 </div>
               </div>
             </div>
@@ -393,15 +400,6 @@ export default function ProtocolViewer({ protocol }) {
             )}
           </div>
           
-          {/* Flowchart Section */}
-          <div className="mt-8">
-            <FlowchartViewer
-              flowchart={protocol.flowchart}
-              steps={protocol.steps}
-              onNodeClick={handleFlowchartNodeClick}
-            />
-          </div>
-
           <div className="mt-8 pt-4 border-t text-sm text-slate-500">
             <p>Última atualização: {format(new Date(protocol.updated_date), "dd 'de' MMMM 'de' yyyy, 'às' HH:mm", { locale: ptBR })}</p>
             {protocol.created_by && <p>Criado por: {protocol.created_by}</p>}

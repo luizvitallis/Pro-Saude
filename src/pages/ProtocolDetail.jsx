@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Protocol } from "@/entities/Protocol";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Edit, Printer, Share2, GitBranch } from "lucide-react";
+import { ArrowLeft, Edit, Printer, Share2, GitBranch, X } from "lucide-react";
 import ProtocolViewer from "../components/protocols/ProtocolViewer";
 import ProtocolEditor from "../components/protocols/ProtocolEditor";
 import FlowEditor from "../components/floweditor/FlowEditor";
+import FlowchartFullscreen from "../components/protocols/FlowchartFullscreen";
 import { createPageUrl } from "@/utils";
 import { useAdmin } from "@/lib/AdminContext";
 
@@ -24,6 +25,7 @@ export default function ProtocolDetail() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(isEditMode && isAdmin);
   const [isEditingFlowchart, setIsEditingFlowchart] = useState(false);
+  const [showFlowchart, setShowFlowchart] = useState(false);
 
   useEffect(() => {
     if (protocolId) {
@@ -64,6 +66,16 @@ export default function ProtocolDetail() {
     return <div className="p-6 text-center text-red-500">Protocolo nao encontrado.</div>;
   }
 
+  // Fullscreen flowchart view
+  if (showFlowchart) {
+    return (
+      <FlowchartFullscreen
+        protocol={protocol}
+        onBack={() => setShowFlowchart(false)}
+      />
+    );
+  }
+
   return (
     <div className="p-6 space-y-6 bg-gradient-to-br from-slate-50 via-white to-slate-50 min-h-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -77,7 +89,7 @@ export default function ProtocolDetail() {
           {isAdmin && !isEditing && !isEditingFlowchart && (
             <>
               <Button onClick={() => setIsEditingFlowchart(true)} variant="outline" className="gap-2">
-                <GitBranch className="w-4 h-4" /> Fluxograma
+                <GitBranch className="w-4 h-4" /> Editar Fluxograma
               </Button>
               <Button onClick={() => setIsEditing(true)} className="gradient-primary">
                 <Edit className="w-4 h-4 mr-2" /> Editar
@@ -102,7 +114,10 @@ export default function ProtocolDetail() {
           />
         </div>
       ) : (
-        <ProtocolViewer protocol={protocol} />
+        <ProtocolViewer
+          protocol={protocol}
+          onOpenFlowchart={() => setShowFlowchart(true)}
+        />
       )}
     </div>
   );

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Trash2, X } from 'lucide-react';
+import { Trash2, X, Upload, FileText, Loader2 } from 'lucide-react';
+import { UploadFile } from '@/integrations/Core';
 
 const NODE_COLORS = [
   { label: 'Verde-azulado', value: 'hsl(185, 55%, 40%)' },
@@ -130,10 +131,63 @@ function NodeProperties({ node, onUpdate, onDelete }) {
         />
       </div>
 
+      <div>
+        <Label className="text-[10px] uppercase tracking-wide" style={{ color: '#94A3B8' }}>PDF da Etapa</Label>
+        <NodePdfUpload pdfUrl={data.pdfUrl} onUpdate={onUpdate} />
+      </div>
+
       <Button variant="destructive" size="sm" onClick={onDelete} className="w-full gap-2">
         <Trash2 size={14} /> Remover Nó
       </Button>
     </div>
+  );
+}
+
+function NodePdfUpload({ pdfUrl, onUpdate }) {
+  const fileRef = useRef(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.type !== 'application/pdf') {
+      alert('Apenas arquivos PDF.');
+      return;
+    }
+    setUploading(true);
+    try {
+      const result = await UploadFile({ file });
+      onUpdate({ pdfUrl: result.file_url });
+    } catch (err) {
+      console.error('Upload failed:', err);
+      alert('Erro ao fazer upload.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (pdfUrl) {
+    return (
+      <div className="mt-1 flex items-center gap-1">
+        <div className="flex-1 text-xs text-green-700 bg-green-50 rounded px-2 py-1.5 truncate flex items-center gap-1">
+          <FileText size={12} /> PDF anexado
+        </div>
+        <button onClick={() => onUpdate({ pdfUrl: '' })} className="p-1 hover:bg-red-50 rounded" title="Remover PDF">
+          <X size={14} className="text-red-500" />
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <input ref={fileRef} type="file" accept=".pdf" onChange={handleUpload} className="hidden" />
+      <Button variant="outline" size="sm" className="w-full mt-1 gap-1 text-xs" disabled={uploading}
+        onClick={() => fileRef.current?.click()}>
+        {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+        {uploading ? 'Enviando...' : 'Anexar PDF'}
+      </Button>
+    </>
   );
 }
 
